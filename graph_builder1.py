@@ -8,3 +8,21 @@
 
 
 #  Testingjfdsjfdskl
+
+
+
+
+
+def add_node():
+    print("test")
+
+def add_edge():
+        print("test")
+def remove_node():
+    print("test")
+    
+def remove_edge():
+    print("test")
+
+def to_adjacency_list():
+    print("test") 
