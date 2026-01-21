@@ -13,18 +13,25 @@ try:
     filename = sys.argv[1]
 
     graph = Graph()
+    mode = False
 
     with open(filename, "r") as f:
         for line in f:
-            if line.strip() in ("CITIES", "ROADS"):
-                print(line.strip())
+            clean_line = line.strip()
+            if clean_line == "CITIES":
+                continue
+            if clean_line == "ROADS":
+                mode = True
                 continue
             
-            
+            if mode:
+                src, dst, weight = clean_line.split(" ")
+                graph.add_edge(src, dst, weight)
+                continue
+                
+            graph.add_node(clean_line)
     output = graph.to_adjacency_list()
     print(output)
-    # print(contents)
-            
 except Exception as e:
     print(f"Error: {e}")
     
