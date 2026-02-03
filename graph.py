@@ -10,7 +10,7 @@ class Graph:
         
         for c in key:
             h += ord(c)
-        j = (h + i) % self.size
+        j = (h+ i) % self.size
         return j
 
     def add_node(self, city):
