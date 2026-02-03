@@ -1,13 +1,13 @@
-"""Module 2: Traffic and Priority Query System
-This module 2 extends to the graph to module"""
+# Module 2: Traffic and Priority Query System
+# This module 2 extends to the graph of module 1
 
 from graph import Graph
 import sys
 
 # Min-Heap implementation for the Dijkstra's algorithm
 class MinHeap:
-    '''The Min-heap implementation for priority queue in Dijkstra's algorithm, which
-    stores tuples of (distance, city) and where distance is the priority.'''
+   # The Min-heap implementation for priority queue in Dijkstra's algorithm, which
+    # stores tuples of (distance, city) and where distance is the priority.
 
     def __init__(self):
         self.heap = [] # Initialized an empty min-heap
@@ -95,7 +95,7 @@ class TrafficMap:
             return 0
 
 # Helper function
-# Helper function are resusable functionss, hangles repetitive or prevents abstraction
+# Helper function are resusable functions, handles repetitiveness and  prevents abstraction
 
 def get_neighbors(graph, city): # Error checks
     # Gets all the neighbors of a city
