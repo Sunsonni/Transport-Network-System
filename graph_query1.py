@@ -104,3 +104,72 @@ def get_neighbors(graph, city): # Error checks
         if graph.nodes[j] == city:
             return graph.weights[j] if graph.weights[j] else []
         return []
+
+# K shortest path query using Dijkstra
+def k_shortest_paths(graph, start, end, k, traffic_map):
+    """Find K shortest pasths from start to end"""
+    paths = []
+
+    # Find the first shortest path
+    path, cost = dijkstra(graph, start, end, traffic_map)
+    if path:
+        paths.append((path, cost))
+
+        # Finding another paths by blocking fromer paths
+        while len(paths) < k:
+            # Add a traffic delta to the last found path to block it
+            modified_traffic = TrafficMap(traffic_map.size)
+
+            # Copy exisiting traffic
+            for j in range(traffic_map.size):
+                if traffic_map.table[j]:
+                    (src, dst), delta = traffic_map.table[j]
+                    modified_traffic.update(src, dst, delta)
+
+            # Block edges in all previous baths
+            for prev_path, _ in paths:
+                for i in range(len(prev_path) - 1):
+                    modified_traffic.update(prev_path[i], prev_path[i+1], 999999) # A large delta number to block paths
+
+            # Finding a new path
+            new_path, new_cost = dijkstra(graph, start, end, modified_traffic)
+            
+            if not new_path or new_cost >= 999999:
+                break
+            paths.append((new_path, new_cost))
+
+        return paths
+    
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python3 graph_query1.py input1.txt commands2.txt")
+        sys.exit(1)
+
+    graph_file, commands_file = sys.argv[1], sys.argv[2]
+
+    graph = Graph()
+    try:
+        with open(graph_file, "r") as f:
+           # False = citites, True = roads
+            mode = False 
+            for line in f:
+                line = line.strip()
+                if line == "CITIES": #if line is CITITES, switch to city mode and skip line
+                    continue
+                if line == "ROADS":
+                    mode = True
+                    continue
+                if not line: # if line is empty skip it
+                    continue
+
+                if mode:
+                    parts = line.split()
+                    if len(parts) >= 3:
+                        graph.add_edge(parts[0], parts[1], parts[2])
+                    else:
+                        graph.add_node(line)
+            
+            # Initialize traffic map
+            traffic_map = TrafficMap()
+                
