@@ -42,7 +42,7 @@ class MinHeap:
     def _bubble_down(self, i): 
         #move element down to maintain heap property
         while True:
-            smallest - i
+            smallest = i
             left = 2 * i + 1
             right = 2 * i + 2
 
@@ -57,7 +57,7 @@ class MinHeap:
             else:
                 break
         
-        def is_empty(self):
+    def is_empty(self):
             return len(self.heap) == 0
     
 # Traffic Map: Hash map for dynamic edge weights
@@ -82,7 +82,7 @@ class TrafficMap:
             if self.table[j] is None or self.table[j][0] == (src, dst):
                 self.table[j] = ((src, dst), delta)
                 return
-            raise Exception("Traffic map overflow")
+        raise Exception("Traffic map overflow")
         
     def get(self, src, dst):
         # Get traffic delta for edge, returns 0 if none
