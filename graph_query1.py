@@ -42,7 +42,11 @@ class MinHeap:
     def _bubble_down(self, i): 
         #move element down to maintain heap property
         while True:
+<<<<<<< HEAD
             smallest = i
+=======
+            smallest = i 
+>>>>>>> b9aa1b58e8616f7a34cd63d46d67ee9f4b1ed60a
             left = 2 * i + 1
             right = 2 * i + 2
 
@@ -103,7 +107,51 @@ def get_neighbors(graph, city): # Error checks
         j = graph.hash(city, i)
         if graph.nodes[j] == city:
             return graph.weights[j] if graph.weights[j] else []
-        return []
+    return []
+
+# Dijkstra shortest path
+# Finds the shortest path from start city to end city
+def dijkstra(graph, start, end, traffic_map):
+    # Distance starts at 0
+    heap = MinHeap()
+    heap.insert(0, start) 
+
+    # Stores shortest distance to each city and previous city
+    distances = {start: 0}
+    previous = {start: None}
+
+    # Finds closest city
+    while not heap.is_empty():
+        current_dist, current_city = heap.extract_min()
+
+        # Stop if destination is reached
+        if current_city == end:
+            break
+
+        # Check all neighbors of current city
+        for neighbor, base_weight in get_neighbors(graph, current_city):
+            cost = base_weight + traffic_map.get(current_city, neighbor)
+            new_dist = current_dist + cost
+
+            # Make sure a shorter path doesn't exist
+            if neighbor not in distances or new_dist < distances[neighbor]:
+                distances[neighbor] = new_dist
+                previous[neighbor] = current_city
+                heap.insert(new_dist, neighbor)
+
+    # If destination wasn't reached
+    if end not in distances:
+        return None, None
+
+    # Rebuild shortest path
+    path = []
+    cur = end
+    while cur:
+        path.append(cur)
+        cur = previous[cur]
+    path.reverse()
+
+    return path, distances[end]
 
 # K shortest path query using Dijkstra
 def k_shortest_paths(graph, start, end, k, traffic_map):
@@ -166,10 +214,48 @@ def main():
                 if mode:
                     parts = line.split()
                     if len(parts) >= 3:
-                        graph.add_edge(parts[0], parts[1], parts[2])
+                        graph.add_edge(parts[0], parts[1], int(parts[2]))
                     else:
                         graph.add_node(line)
             
             # Initialize traffic map
             traffic_map = TrafficMap()
-                
+    except:  
+        print("Aww man")
+
+    # Process command file
+    with open(commands_file, "r") as f:
+        for line in f:
+            parts = line.strip().split()
+            if not parts:
+                continue
+
+            # Handle traffic updates
+            if parts[0] == "TRAFFIC_REPORT":
+                traffic_map.update(parts[1], parts[2], int(parts[3]))
+
+            # Handle shortest path query
+            elif parts[0] == "QUERY" and parts[1] == "SHORTEST_PATH":
+                path, cost = dijkstra(graph, parts[2], parts[3], traffic_map)
+                if path:
+                    print(
+                        f"SHORTEST_PATH {parts[2]} {parts[3]}: "
+                        f"{' -> '.join(path)} (cost: {cost})"
+                    )
+
+            # Handle k paths query
+            elif parts[0] == "QUERY" and parts[1] == "K_PATHS":
+                paths = k_shortest_paths(
+                    graph,
+                    parts[2],
+                    parts[3],
+                    int(parts[4]),
+                    traffic_map
+                )
+                print(f"K_PATHS {parts[2]} {parts[3]}:")
+                for i, (p, c) in enumerate(paths):
+                    print(f"{i+1}) {' -> '.join(p)} ({c})")
+
+if __name__ == "__main__":
+    main()
+               
