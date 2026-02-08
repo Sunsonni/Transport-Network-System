@@ -42,11 +42,7 @@ class MinHeap:
     def _bubble_down(self, i): 
         #move element down to maintain heap property
         while True:
-<<<<<<< HEAD
-            smallest = i
-=======
             smallest = i 
->>>>>>> b9aa1b58e8616f7a34cd63d46d67ee9f4b1ed60a
             left = 2 * i + 1
             right = 2 * i + 2
 
@@ -92,7 +88,7 @@ class TrafficMap:
         # Get traffic delta for edge, returns 0 if none
         for i in range(self.size):
             j = self._hash(src, dst, i)
-            if self.table [j] is None:
+            if self.table[j] is None:
                 return 0
             if self.table[j][0] == (src, dst):
                 return self.table[j][1]
@@ -130,7 +126,8 @@ def dijkstra(graph, start, end, traffic_map):
 
         # Check all neighbors of current city
         for neighbor, base_weight in get_neighbors(graph, current_city):
-            cost = base_weight + traffic_map.get(current_city, neighbor)
+            # Changed base_weight to int to match traffic delta which is int in module 1.
+            cost = int(base_weight) + traffic_map.get(current_city, neighbor)
             new_dist = current_dist + cost
 
             # Make sure a shorter path doesn't exist
@@ -186,9 +183,8 @@ def k_shortest_paths(graph, start, end, k, traffic_map):
                 break
             paths.append((new_path, new_cost))
 
-        return paths
+    return paths
     
-
 def main():
     if len(sys.argv) != 3:
         print("Usage: python3 graph_query1.py input1.txt commands2.txt")
@@ -214,48 +210,65 @@ def main():
                 if mode:
                     parts = line.split()
                     if len(parts) >= 3:
-                        graph.add_edge(parts[0], parts[1], int(parts[2]))
-                    else:
-                        graph.add_node(line)
+                        graph.add_edge(parts[0], parts[1], (parts[2])) # in module 1 it stores weight as a string, not an int. 
+                else:
+                    graph.add_node(line)
             
-            # Initialize traffic map
-            traffic_map = TrafficMap()
-    except:  
-        print("Aww man")
+        # Initialize traffic map
+        traffic_map = TrafficMap()
+    except FileNotFoundError as e:
+        print(f"Error: File not found - {e}") #propwer error handling  
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: building graph: {e}")
+        sys.exit(1)
 
     # Process command file
-    with open(commands_file, "r") as f:
-        for line in f:
-            parts = line.strip().split()
-            if not parts:
-                continue
+    try:    
+        with open(commands_file, "r") as f:
+            for line in f:
+                parts = line.strip().split()
+                if not parts:
+                    continue
 
-            # Handle traffic updates
-            if parts[0] == "TRAFFIC_REPORT":
-                traffic_map.update(parts[1], parts[2], int(parts[3]))
+                # Handle traffic updates
+                if parts[0] == "TRAFFIC_REPORT":
+                    traffic_map.update(parts[1], parts[2], int(parts[3]))
 
-            # Handle shortest path query
-            elif parts[0] == "QUERY" and parts[1] == "SHORTEST_PATH":
-                path, cost = dijkstra(graph, parts[2], parts[3], traffic_map)
-                if path:
-                    print(
-                        f"SHORTEST_PATH {parts[2]} {parts[3]}: "
-                        f"{' -> '.join(path)} (cost: {cost})"
+                # Handle shortest path query
+                elif parts[0] == "QUERY" and parts[1] == "SHORTEST_PATH":
+                    path, cost = dijkstra(graph, parts[2], parts[3], traffic_map)
+                    if path:
+                        print(
+                            f"SHORTEST_PATH {parts[2]} {parts[3]}: "
+                            f"{' -> '.join(path)} (cost: {cost})"
+                        )
+                    else:
+                        print(f"SHORTEST_PATH {parts[2]} {parts[3]}: No path found")
+
+                # Handle k paths query
+                elif parts[0] == "QUERY" and parts[1] == "K_PATHS":
+                    paths = k_shortest_paths(
+                        graph,
+                        parts[2],
+                        parts[3],
+                        int(parts[4]),
+                        traffic_map
                     )
-
-            # Handle k paths query
-            elif parts[0] == "QUERY" and parts[1] == "K_PATHS":
-                paths = k_shortest_paths(
-                    graph,
-                    parts[2],
-                    parts[3],
-                    int(parts[4]),
-                    traffic_map
-                )
-                print(f"K_PATHS {parts[2]} {parts[3]}:")
-                for i, (p, c) in enumerate(paths):
-                    print(f"{i+1}) {' -> '.join(p)} ({c})")
-
-if __name__ == "__main__":
+                    if paths:
+                        print(f"K_PATHS {parts[2]} {parts[3]}:")
+                        for i, (p, c) in enumerate(paths):
+                            print(f"{i+1}) {' -> '.join(p)} ({c})")
+                    else: 
+                        print(f"K_PATHS {parts[2]} {parts[3]}: No paths found")
+                        
+    except FileNotFoundError as e:
+        print(f"Error: File not found - {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: processing commands: {e}")
+        sys.exit(1)
+    
+if __name__ == "__main__": 
     main()
                

@@ -1,7 +1,7 @@
 # Transport-Network-System
 
 To run: 
-<code> python graph_builder1.py input1.txt </code>
+<code> python3 graph_query1.py input1.txt commands2.txt  </code>
 
 # Group Members:
 - Hayden Bueltemann
