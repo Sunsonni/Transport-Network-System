@@ -1,19 +1,25 @@
 from graph import Graph
-from graph_query1 import dijkstra, k_shortest_paths
+from graph_query1 import dijkstra, k_shortest_paths, TrafficMap
+from datetime import datetime
+
+# Helper function to convert to string to datetime
+def dt_convert(timestring):
+    return datetime.strptime(timestring, "%H:%M")
 
 class TransportSchedule:
-    def __init__(self, graph, traffic_map = None):
-        self.graph = graph
-        self.traffic_map = traffic_map
+    def __init__(self):
+        self.test = "Initialized successfully." # TODO: GET RID OF THIS
+        self.graph = Graph
+        self.traffic_map = TrafficMap
         self.queue = []         # FIFO queue
         self.undo_stack = []    # Undos the last made action
         self.history = []       # Sorts list of deliveries that have been completed
 
-    def shedule_delivery(self, src, dst, time): # Scheduling the delivery
+    def schedule_delivery(self, src, dst, time): # Scheduling the delivery
         delivery = (time, f"{src}->{dst} at {time}")
         self.queue.append(delivery)
-        self.undo_stack.append(("schedule",delivery))
-        
+        self.undo_stack.append(("schedule", delivery))
+
         return f"Scheduled: {delivery[1]}"
     
     def complete_delivery(self): # Completes delivery
@@ -21,7 +27,7 @@ class TransportSchedule:
             return "No deliveries to complete"
         delivery = self.queue.pop(0)
         self.history.append(delivery) # Keeps the history sorted
-        self.history.sort(key = lambda x: x[0]) # Sorts by time
+        self.history.sort(key = lambda x: dt_convert(x[0])) # Sorts by time
         self.undo_stack.append(("complete", delivery))
         
         return f"Completed: {delivery[1]}"
@@ -43,11 +49,17 @@ class TransportSchedule:
         return "Recorded history"
     
     def query_history(self, start_time, end_time): # history within a time range
-        results = [d[1] for d in self.history if start_time <= d[0] <= end_time]
+        results = [
+            d[1] 
+            for d in self.history 
+            if dt_convert(start_time) <= dt_convert(d[0]) <= dt_convert(end_time)
+        ]
+        
         if not results:
             return "No deliveries in the specified range"
         output = "History between {} and {}:\n- ".format(start_time, end_time)
-        output += "\n-".join(results)
+        output += "\n- ".join(results)
+        return output
 
     def shortest_path(self, src, dst): # computes shortest path for delivery
         if self.traffic_map:
