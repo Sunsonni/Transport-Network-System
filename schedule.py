@@ -1,6 +1,7 @@
 from graph import Graph
 from graph_query1 import dijkstra, k_shortest_paths, TrafficMap
 from datetime import datetime
+from collections import deque
 
 # Helper function to convert to string to datetime
 def dt_convert(timestring):
@@ -8,10 +9,9 @@ def dt_convert(timestring):
 
 class TransportSchedule:
     def __init__(self):
-        self.test = "Initialized successfully." # TODO: GET RID OF THIS
         self.graph = Graph
         self.traffic_map = TrafficMap
-        self.queue = []         # FIFO queue
+        self.queue = deque()    # FIFO queue NOTE: Switched to deque in collections to run in O(1)
         self.undo_stack = []    # Undos the last made action
         self.history = []       # Sorts list of deliveries that have been completed
 
@@ -25,7 +25,7 @@ class TransportSchedule:
     def complete_delivery(self): # Completes delivery
         if not self.queue:
             return "No deliveries to complete"
-        delivery = self.queue.pop(0)
+        delivery = self.queue.popleft()
         self.history.append(delivery) # Keeps the history sorted
         self.history.sort(key = lambda x: dt_convert(x[0])) # Sorts by time
         self.undo_stack.append(("complete", delivery))
@@ -42,10 +42,11 @@ class TransportSchedule:
             elif action == "complete":
                 if delivery in self.history:
                     self.history.remove(delivery)
-                self.queue.insert(0, delivery)
+                self.queue.appendleft(0, delivery)
             return "Previous action undone"
     
     def record_history(self): # Records all deliveries to history (completed)
+        self.complete_delivery()
         return "Recorded history"
     
     def query_history(self, start_time, end_time): # history within a time range

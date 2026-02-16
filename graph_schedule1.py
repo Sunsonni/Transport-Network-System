@@ -1,6 +1,6 @@
 # MVP:
 # Use queue for deliver scheduling
-# Log completed routes int a search able structure
+# Log completed routes into a searchable structure
 # Implement an undo stack to roll back actions
 # Enable time range queries over history
 # 
@@ -19,13 +19,9 @@
 # History between 9:00 and 9:30:
 # - City1->City4 at 9:00
 
-
-# Class functions:
-
 # RUN COMMAND:
 # python3 graph_schedule1.py schedule3.txt
 from schedule import TransportSchedule
-from datetime import datetime
 
 import sys
 
@@ -33,12 +29,9 @@ try:
     filename = sys.argv[1]
 
     scheduler = TransportSchedule()
-
-    # print(scheduler.schedule_delivery("City25", "City0", "09:00"))
-    # print(scheduler.schedule_delivery("City23", "City91", "09:15"))
     
     with open(filename, "r") as f:
-        for line in f:
+        for line_number, line in enumerate(f, start = 1):
             clean_line = line.strip()
             if clean_line:
                 splits = clean_line.split(" ")
@@ -46,23 +39,15 @@ try:
                 match splits:
                     case ["SCHEDULE", "DELIVERY", route, _, time]:
                         src, dst = route.split("->")
-                        scheduler.schedule_delivery(src, dst, time)
+                        print(scheduler.schedule_delivery(src, dst, time))
                     case ["RECORD_HISTORY"]:
-                        # TODO ADD RECORD HISTORY TO THIS
-                        print("WILL ADD STUFF")
+                        print(scheduler.record_history())
                     case ["UNDO_LAST"]:
                         print(scheduler.undo_last())
                     case ["QUERY_HISTORY", _, start_time, end_time]:
-                        scheduler.query_history(start_time, end_time)
-
-                        
-
-                print(splits)
-    print(f"queue: {scheduler.queue}")
-    print(f"undo stack: {scheduler.undo_stack}")
-    print(f"history: {scheduler.history}")
-    print(f"queue history : {scheduler.query_history('10:00', '10:15')}")
-
+                        print(scheduler.query_history(start_time, end_time))
+                    case _:
+                        print(f"Unknown command {splits}. Skipping line {line_number}.")
 
 except Exception as e:
     print(f"Error: {e}")
