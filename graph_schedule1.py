@@ -30,11 +30,11 @@ try:
 
     scheduler = TransportSchedule()
     
-    with open(filename, "r") as f:
+    with open(filename, "r", newline = None) as f:
         for line_number, line in enumerate(f, start = 1):
             clean_line = line.strip()
             if clean_line:
-                splits = clean_line.split(" ")
+                splits = clean_line.split()
 
                 match splits:
                     case ["SCHEDULE", "DELIVERY", route, _, time]:
