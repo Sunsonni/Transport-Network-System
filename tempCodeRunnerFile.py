@@ -1,1 +1,1 @@
-f
+python3 graph_schedule1.py schedule3.txt
